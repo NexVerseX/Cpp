@@ -1,6 +1,7 @@
 # **面向对象与C++程序设计**
 ***
 ***
+
 # 2基本数据类型与输入/输出
 # 2.1字符集与保留字
 保留字 keyword
@@ -111,3 +112,261 @@ setw(n)是一次性的 例如：
 # 2.7printf与scanf
 printf和scanf输出入格式是C的输入出方式，它输入出已有的C类型的数据。例如，int,double等
 
+
+***
+# 11.1 从结构到类
++ C语言中的数据类型—数据组织与存储
+    自带类型：int系、double系
+    构造类型：指针、数组
+    自定义类型：结构、（枚举、联合）    
++ C++重新强化类型概念
+    数据类型含三要素：数据组织、表达范围、数据操作
++ C++自定义类型
+1. C中的struct结构 仅含数据组织
+
+.
+
+    struct Point{ int x;  int y; };
+
+2. C++中的struct结构 可定义数据组织、数据操作
+
+.
+
+    struct Point{ 
+        int x; int y;
+        void print(){  cout<<'('<<x<<','<<y<<')'; }
+    };
+
+3. C++中用class扩充类,可定义数据组织、数据操作
+
+.
+
+    class Point{ 
+        int x; int y;
+    public:
+        void print(){  cout<<'('<<x<<','<<y<<')'; }
+    };
+
+# 11.2 软件方法的发展必然
+
+# 11.3 定义成员函数
+*在类内定义成员函数*
+
+    #include<iostream>
+    using namespace std;
+    //---------------------
+    class Tdate{
+    public://用public说明公有访问
+        void Set(int m,int d,int y){   
+            month=m; day=d; year=y;
+        }
+        int IsLeapYear(){              
+            return (year%4==0 && year%100!=0)||(year%400==0);
+        }
+        void Print(){                  
+            cout<<month<<"/"<<day<<"/"<<year<<endl;
+        }
+    private://用private说明私有访问(限制访问)
+        int month;
+        int day;
+        int year;
+    };//-------------------
+    //类定义结束的分号必须要有
+    int main(){
+        Tdate a;
+        a.Set(2,4,1998);
+        a.Print();
+    }//--------------------
+
+*在类外定义成员函数*
+
+    #include<iostream>
+    using namespace std;
+    class Tdate{
+    public:            //用public说明公有访问
+        void set(int m,int d,int y);   //类中成员函数声明
+        int isLeapYear();
+        void print();
+    private:           //用private说明私有访问
+        int month, day, year;
+    };//类定义结束的分号
+    void Tdate::set(int m,int d,int y){ //类外定义成员函数,函数名前类名::
+        month=m; day=d; year=y;
+    }
+    int Tdate::isLeapYear(){                         
+        return (year%4==0&&year%100!=0)||(year%400==0);
+    }
+    void Tdate::print(){                 
+        cout <<month <<"/" <<day <<"/" <<year <<endl;
+    }  
+    int main(){         
+        Tdate a;
+        a.set(2,4,1998);   //a对象调用公有成员函数set,置a中日期
+        a.print();         //a对象调用公有成员函数print,输出a中日期  
+    }
+
+## 类定义与程序编排
++ 类定义,类外定义成员函数,主应用编程,三者可以拆分,合成程序工程
+
+*头文件Tdate.h——类定义,成员函数声明*
+
+    class Tdate{
+        int month, day, year;  //默认为private
+    public: 
+        void set(int m,int d,int y);   
+        int isLeapYear();      
+        void print();
+    };// 类定义结束的分号
+
+*源代码文件Tdate.cpp——成员函数定义*
+
+    #include”Tdate.h”     //用到Tdate类
+    #include<iostream>    //用到cout
+    using namespace std;
+    void Tdate::set(int m,int d,int y){ month=m; day=d; year=y; }
+    int Tdate::isLeapYear(){ return (year%4==0&&year%100!=0)||(year%400==0); }
+    void Tdate::print(){ cout<<month<<"/"<<day<<"/"<<year<<endl; }  
+
+*源代码文件app.cpp——主函数*
+
+    #include”Tdate.h”    //用到Tdate类
+    int main(){          
+        Tdate a;           //定义Tdate类对象a
+        a.set(2,4,1998);   //a对象调用公有成员函数set,置a中日期
+        a.print();         //a对象调用公有成员函数print,输出a中日期
+    }  
+
+
+# 11.4 调用成员函数
++ 除了一般的成员函数调用（前面已经介绍），还有指针与引用方式调用
+
++ 对象是数据实体,可以有指针和引用,常常在函数中传递对象指针和引用
+
++ 以前面的程序编排为蓝本,修改app.cpp,调用一个函数,传递对象指针,实现成员函数调用
+
+//源代码文件app.cpp
+
+    #include"tdate.h"
+    #include<iostream>
+    using namespace std;
+    void someFunc(Tdate* pS){
+        pS->print();  //pS指针调用成员函数
+        if(pS->isLeapYear())
+            cout<<"oh oh\n";
+        else
+            cout<<"right\n";
+    }
+    int main(){
+        Tdate s;
+        s.set(2,15,1998);
+        someFunc(&s);    //传递对象地址
+    }
+
++ 引用参数实施成员函数调用
+
+//源代码文件app.cpp
+
+    #include"tdate.h"
+    #include<iostream>
+    using namespace std;
+    void someFunc(Tdate& rS){
+        rS.print();  //rS是引用
+        if(rS.isLeapYear())
+            cout<<"oh oh\n";
+        else
+            cout<<"right\n";
+    }
+    int main(){
+        Tdate s;
+        s.set(2,15,1998);
+        someFunc(s);    //对象引用传递
+    }
+
+
+# 11.5 保护成员
+
+# 11.6 屏蔽类的内部实现
++ 程序中,类内是一个世界,类外是一个世界
+
++ 类内数据由成员函数来设置和修改,不允许类外直接修改数据成员(private),保护类内世界的清静,数据错误由成员函数担责
+  
++ 类外是调用该类成员函数的应用程序,无须也不允许关心类的细节
+
+.
+
+    class Student{
+        int semesHour;
+        float gpa;
+    public:
+        float addCourse(int hours, float grade){
+            gpa = semesHour*gpa+grade*hours;  //总分
+            semesHour += hours;               //调整学时
+            gpa /= semesHour;                 //调整平均成绩
+        }
+        float grade(){ return gpa; }        //获取平均成绩
+        int hours(){ return semesHour; }    //获取学时
+    };
+    int main(){
+        Student s;
+        s.addCourse(3, 4.5);    //通过该成员函数修改数据成员
+        cout<<s.gpa;            //错:不该直接取用
+        cout<<s.grade();
+        s.semesHour += 1;       //错:类外不允许访问类内私有数据
+    }
+
++ 类编程:设计类(类定义和类实现)
++ 分离类编程: 提供公有成员函数为应用编程所用,屏蔽私有数据,使内部实现高度灵活,并对操作正确性负责
+
+//用到sqrt(), atan()函数
+
+    #include<iostream>
+    #include<cmath>   
+    using namespace std;
+    class Point{        //定义坐标点类, *第一种实现*
+    public:
+        void set(double ix, double iy) { x=ix;  y=iy; }     //设置坐标
+        double xOffset() { return x; }                      //取y轴坐标分量
+        double yOffset() { return y; }                      //取x轴坐标分量
+        double angle() { return (180/3.14159)*atan2(y,x); } //取点的极坐标
+        double radius() { return sqrt(x*x+y*y); }           //取点的极坐标半径
+    private:
+        double  x, y;      //x,y轴分量
+    } p;   //创建p对象
+    int main(){
+        for(double x,y; cin>>x>>y && x>=0; ){ //重复输入x和y轴分量,直到x分量小于0
+            p.set(x,y);
+            cout<<"angle="<<p.angle()<<",radius="<<p.radius()
+            <<",x offset="<<p.xOffset()<<",y offset="<<p.yOffset()<<endl;
+      }
+    }
+
+
++ 应用编程者任凭类编程如何修改,对使用类的代码都无需修改
+
+//用到sqrt(),atan2(),cos(),sin()
+
+    #include<iostream>
+    #include<cmath>   
+    Using namespace std;
+    class Point{        //定义坐标点类, *第二种实现*
+    public:
+        void set(double ix, double iy) { //设置坐标
+            a=atan2(iy, ix); 
+            r=sqrt(ix*ix+iy*iy); 
+        }
+        double xOffset() { return r*cos(a); }      //取y轴坐标分量
+        double yOffset() { return r*sin(a); }      //取x轴坐标分量
+        double angle() { return (180/3.14159)*a; } //取点的极坐标
+        double radius() { return r; }              //取点的极坐标半径
+    private:
+        double  a, r;      //极坐标弧度,半径
+    } p;      //创建p对象
+    int main(){ //使用类者代码(main函数)不需要作任何修改
+        for(double x,y; cin>>x>>y && x>=0; ){ //输入x和y轴分量,直到x分量值小于0
+            p.set(x,y);
+            cout<<"angle="<<p.angle()<<",radius="<<p.radius()
+            <<",x offset="<<p.xOffset()<<",y offset="<<p.yOffset()<<endl;
+      }
+    }
+
+# 11.7 再论程序结构
